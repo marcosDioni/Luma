@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapéu Seletor da Luma</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Georgia', serif;
+      background: linear-gradient(to bottom, #1a1a1a, #000);
+      color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px gold;
+    }
+    button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      font-size: 18px;
+      background: gold;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .question {
+      margin-top: 20px;
+    }
+    .options button {
+      display: block;
+      margin: 10px auto;
+      background-color: #444;
+      color: white;
+      border: 1px solid gold;
+    }
+    .hidden {
+      display: none;
+    }
+    .house-crests {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    .house-crests img {
+      width: 60px;
+      height: 60px;
+    }
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<audio id="bgm" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/10/24/audio_9b7e3a19f3.mp3?filename=magical-forest-ambient-123467.mp3" type="audio/mpeg">
+</audio>
+<div class="container">
+  <h1 id="title">Bem-vinda a Hogwarts, Luma!</h1>
+  <p id="text">O Chapéu Seletor quer te conhecer melhor...</p>
+  <button onclick="document.getElementById('bgm').play()">🔊 Ativar Som</button>
+  <button id="startBtn">Começar</button>
+  <div id="quiz" class="hidden">
+    <div id="question" class="question"></div>
+    <div id="options" class="options"></div>
+    <div class="house-crests">
+      <img src="https://i.imgur.com/IOU9oQD.png" alt="Gryffindor">
+      <img src="https://i.imgur.com/OZ3Gfjg.png" alt="Hufflepuff">
+      <img src="https://i.imgur.com/U5Kez82.png" alt="Ravenclaw">
+      <img src="https://i.imgur.com/4RBqZ0b.png" alt="Slytherin">
+    </div>
+  </div>
+  <div id="finalMessage" class="hidden">
+    <h2>🎉 Feliz 18 Anos, Luma! 🎉</h2>
+    <p>Hoje, o mundo mágico celebra você!<br>
+    Que cada passo da sua nova fase seja iluminado pela sabedoria de Ravenclaw,<br>
+    a coragem de Gryffindor, a lealdade de Hufflepuff e a astúcia de Slytherin.<br><br>
+    Que seus sonhos voem tão alto quanto uma vassoura Firebolt,<br>
+    e que sua magia interior nunca se apague.<br><br>
+    Com muito carinho, daqueles que te amam... e de toda Hogwarts! 🪄✨</p>
+  </div>
+</div>
+<script>
+  const questions = [
+    {
+      q: 'Qual dessas palavras te descreve melhor?',
+      a: ['Corajosa', 'Leal', 'Inteligente', 'Ambiciosa']
+    },
+    {
+      q: 'Você prefere:',
+      a: ['Aventuras', 'Livros', 'Amizades', 'Desafios']
+    },
+    {
+      q: 'Escolha um animal mágico para te acompanhar:',
+      a: ['Coruja', 'Gato', 'Sapo', 'Dragão']
+    }
+  ];
+
+  let current = 0;
+  const startBtn = document.getElementById('startBtn');
+  const quiz = document.getElementById('quiz');
+  const questionEl = document.getElementById('question');
+  const optionsEl = document.getElementById('options');
+  const title = document.getElementById('title');
+  const text = document.getElementById('text');
+  const finalMessage = document.getElementById('finalMessage');
+
+  startBtn.onclick = () => {
+    startBtn.classList.add('hidden');
+    text.classList.add('hidden');
+    title.textContent = 'O Chapéu Seletor está pensando...';
+    quiz.classList.remove('hidden');
+    showQuestion();
+  };
+
+  function showQuestion() {
+    const q = questions[current];
+    questionEl.textContent = q.q;
+    optionsEl.innerHTML = '';
+    q.a.forEach(option => {
+      const btn = document.createElement('button');
+      btn.textContent = option;
+      btn.onclick = nextQuestion;
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function nextQuestion() {
+    current++;
+    if (current < questions.length) {
+      showQuestion();
+    } else {
+      quiz.classList.add('hidden');
+      title.classList.add('hidden');
+      finalMessage.classList.remove('hidden');
+    }
+  }
+</script>
+</body>
+</html>
