@@ -2,131 +2,211 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chapéu Seletor da Luma</title>
+  <title>Chapéu Seletor – Aniversário de 18 anos</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Georgia', serif;
-      background: linear-gradient(to bottom, #1a1a1a, #000);
-      color: #f5f5f5;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #2e3d49;
+      color: #f5e8c7;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
-      text-align: center;
-      padding: 20px;
+      position: relative;
     }
     .container {
-      max-width: 500px;
-      background: rgba(0, 0, 0, 0.8);
+      background: #3b4a57;
+      border: 3px solid #d4af37;
+      border-radius: 8px;
       padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 0 15px gold;
+      width: 360px;
+      text-align: center;
     }
-    button {
-      margin-top: 20px;
-      padding: 15px 30px;
-      font-size: 18px;
-      background: gold;
-      color: black;
-      border: none;
-      border-radius: 10px;
+    h1 { font-size: 1.6rem; margin-bottom: 10px; }
+    .question { margin: 20px 0; font-size: 1.1rem; }
+    .choices { list-style: none; margin-bottom: 20px; text-align: left; }
+    .choices li { margin: 8px 0; }
+    .choices button {
+      width: 100%; padding: 8px;
+      background: #556b78; border: 2px solid #d4af37;
+      border-radius: 4px; color: #f5e8c7;
+      cursor: pointer; font-size: 0.95rem;
+    }
+    .choices button:hover { background: #6d8392; }
+    #nextBtn, #restartBtn {
+      padding: 8px 16px; background: #d4af37;
+      border: none; border-radius: 4px;
+      color: #2e3d49; font-weight: bold;
+      cursor: pointer; font-size: 1rem;
+    }
+    #resultBlock h2 { margin-bottom: 10px; color: #d4af37; }
+    #resultBlock p { font-size: 1rem; line-height: 1.4; }
+    #houseImg {
+      display: block; margin: 15px auto;
+      width: 120px; height: auto;
+    }
+    #muteBtn {
+      position: absolute; top: 20px; right: 20px;
+      background: transparent; border: none;
+      color: #f5e8c7; font-size: 1.4rem;
       cursor: pointer;
     }
-    .question {
-      margin-top: 20px;
-    }
-    .options button {
-      display: block;
-      margin: 10px auto;
-      background-color: #444;
-      color: white;
-      border: 1px solid gold;
-    }
-    .hidden {
-      display: none;
-    }
+    audio { display: none; }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1 id="title">Bem-vinda a Hogwarts, Luma!</h1>
-  <p id="text">O Chapéu Seletor quer te conhecer melhor...</p>
-  <button id="startBtn">Começar</button>
-  <div id="quiz" class="hidden">
-    <div id="question" class="question"></div>
-    <div id="options" class="options"></div>
+
+  <!-- Áudio de fundo: Harry Potter Main Theme -->
+  <audio id="bgMusic"
+         src="https://www.televisiontunes.com/uploads/audio/Harry%20Potter%20-%20Main%20Theme.mp3"
+         loop autoplay>
+  </audio>
+
+  <button id="muteBtn">🔊</button>
+
+  <div class="container" id="quizContainer">
+    <h1>Chapéu Seletor</h1>
+
+    <div id="questionBlock">
+      <div class="question" id="question">Pergunta</div>
+      <ul class="choices" id="choices"></ul>
+      <button id="nextBtn" disabled>Próxima</button>
+    </div>
+
+    <div id="resultBlock" style="display:none">
+      <h2 id="houseResult"></h2>
+      <img id="houseImg" src="" alt="Escudo da Casa" />
+      <p id="birthdayMsg"></p>
+      <button id="restartBtn">Refazer Seleção</button>
+    </div>
   </div>
-  <div id="finalMessage" class="hidden">
-    <h2>🎉 Feliz 18 Anos, Luma! 🎉</h2>
-    <p>Hoje, o mundo mágico celebra você!<br>
-    Que cada passo da sua nova fase seja iluminado pela sabedoria da <strong>Corvinal</strong>,<br>
-    a coragem da <strong>Grifinória</strong>, a lealdade da <strong>Lufa-Lufa</strong> e a astúcia da <strong>Sonserina</strong>.<br><br>
-    Que seus sonhos voem tão alto quanto uma vassoura Firebolt,<br>
-    e que sua magia interior nunca se apague.<br><br>
-    Com muito carinho, daqueles que te amam... e de toda Hogwarts! 🪄✨</p>
-  </div>
-</div>
-<script>
-  const questions = [
-    {
-      q: 'Qual dessas palavras te descreve melhor?',
-      a: ['Corajosa', 'Leal', 'Inteligente', 'Ambiciosa']
-    },
-    {
-      q: 'Você prefere:',
-      a: ['Aventuras', 'Livros', 'Amizades', 'Desafios']
-    },
-    {
-      q: 'Escolha um animal mágico para te acompanhar:',
-      a: ['Coruja', 'Gato', 'Sapo', 'Dragão']
+
+  <script>
+    const questions = [
+      {
+        q: "Qual desses animais você mais gosta?",
+        choices: ["Coruja", "Rato", "Cavalo", "Leão"],
+        houses: ["Corvinal", "Sonserina", "Lufa-Lufa", "Grifinória"]
+      },
+      {
+        q: "Qual qualidade você valoriza mais?",
+        choices: ["Coragem", "Lealdade", "Inteligência", "Ambição"],
+        houses: ["Grifinória", "Lufa-Lufa", "Corvinal", "Sonserina"]
+      },
+      {
+        q: "Onde você passaria mais tempo?",
+        choices: [
+          "Sala comum da Grifinória",
+          "Torre da Corvinal",
+          "Porão da Sonserina",
+          "Cozinhas da Lufa-Lufa"
+        ],
+        houses: ["Grifinória", "Corvinal", "Sonserina", "Lufa-Lufa"]
+      },
+      {
+        q: "Qual feitiço é seu favorito?",
+        choices: ["Expelliarmus", "Wingardium Leviosa", "Protego", "Reparo"],
+        houses: ["Grifinória", "Corvinal", "Sonserina", "Lufa-Lufa"]
+      },
+      {
+        q: "Qual cor combina mais com você?",
+        choices: ["Vermelho", "Azul", "Verde", "Amarelo"],
+        houses: ["Grifinória", "Corvinal", "Sonserina", "Lufa-Lufa"]
+      }
+    ];
+
+    let current = 0;
+    const tally = {
+      "Grifinória": 0,
+      "Corvinal":   0,
+      "Sonserina":  0,
+      "Lufa-Lufa":  0
+    };
+
+    const questionEl    = document.getElementById("question");
+    const choicesEl     = document.getElementById("choices");
+    const nextBtn       = document.getElementById("nextBtn");
+    const resultBlock   = document.getElementById("resultBlock");
+    const questionBlock = document.getElementById("questionBlock");
+    const houseResult   = document.getElementById("houseResult");
+    const birthdayMsg   = document.getElementById("birthdayMsg");
+    const houseImg      = document.getElementById("houseImg");
+    const bgMusic       = document.getElementById("bgMusic");
+    const muteBtn       = document.getElementById("muteBtn");
+
+    const birthdayByHouse = {
+      "Grifinória": "Que a coragem de Grifinória te inspire em cada novo desafio!",
+      "Corvinal":   "Que a sabedoria de Corvinal ilumine seus melhores dias!",
+      "Sonserina":  "Que a ambição de Sonserina te leve mais longe!",
+      "Lufa-Lufa":  "Que a lealdade de Lufa-Lufa fortaleça todos os seus laços!"
+    };
+
+    const imageByHouse = {
+      "Grifinória": "https://commons.wikimedia.org/wiki/Special:FilePath/Gryffindor_House_Crest.png",
+      "Corvinal":   "https://commons.wikimedia.org/wiki/Special:FilePath/Ravenclaw_House_Crest.png",
+      "Sonserina":  "https://commons.wikimedia.org/wiki/Special:FilePath/Slytherin_House_Crest.png",
+      "Lufa-Lufa":  "https://commons.wikimedia.org/wiki/Special:FilePath/Hufflepuff_House_Crest.png"
+    };
+
+    function loadQuestion() {
+      nextBtn.disabled = true;
+      const item = questions[current];
+      questionEl.textContent = item.q;
+      choicesEl.innerHTML = "";
+      item.choices.forEach((text, i) => {
+        const li  = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.textContent = text;
+        btn.addEventListener("click", () => selectAnswer(i));
+        li.appendChild(btn);
+        choicesEl.appendChild(li);
+      });
     }
-  ];
 
-  let current = 0;
-  const startBtn = document.getElementById('startBtn');
-  const quiz = document.getElementById('quiz');
-  const questionEl = document.getElementById('question');
-  const optionsEl = document.getElementById('options');
-  const title = document.getElementById('title');
-  const text = document.getElementById('text');
-  const finalMessage = document.getElementById('finalMessage');
+    function selectAnswer(index) {
+      const btns = choicesEl.querySelectorAll("button");
+      btns.forEach(b => b.disabled = true);
+      const chosenHouse = questions[current].houses[index];
+      tally[chosenHouse]++;
+      btns[index].style.borderColor = "#d4af37";
+      nextBtn.disabled = false;
+    }
 
-  startBtn.onclick = () => {
-    startBtn.classList.add('hidden');
-    text.classList.add('hidden');
-    title.textContent = 'O Chapéu Seletor está pensando...';
-    quiz.classList.remove('hidden');
-    showQuestion();
-  };
-
-  function showQuestion() {
-    const q = questions[current];
-    questionEl.textContent = q.q;
-    optionsEl.innerHTML = '';
-    q.a.forEach(option => {
-      const btn = document.createElement('button');
-      btn.textContent = option;
-      btn.onclick = nextQuestion;
-      optionsEl.appendChild(btn);
+    nextBtn.addEventListener("click", () => {
+      current++;
+      if (current < questions.length) loadQuestion();
+      else showResult();
     });
-  }
 
-  function nextQuestion() {
-    current++;
-    if (current < questions.length) {
-      showQuestion();
-    } else {
-      quiz.classList.add('hidden');
-      title.classList.add('hidden');
-      finalMessage.classList.remove('hidden');
+    function showResult() {
+      questionBlock.style.display = "none";
+      resultBlock.style.display   = "block";
+      const maxScore = Math.max(...Object.values(tally));
+      const tops     = Object.keys(tally).filter(h => tally[h] === maxScore);
+      const finalHouse = tops[Math.floor(Math.random() * tops.length)];
+      houseResult.textContent = `Parabéns! Seja bem-vinda à ${finalHouse}!`;
+      birthdayMsg.textContent = birthdayByHouse[finalHouse];
+      houseImg.src            = imageByHouse[finalHouse];
+      houseImg.alt            = `Escudo de ${finalHouse}`;
     }
-  }
-</script>
+
+    document
+      .getElementById("restartBtn")
+      .addEventListener("click", () => {
+        current = 0;
+        Object.keys(tally).forEach(h => tally[h] = 0);
+        resultBlock.style.display   = "none";
+        questionBlock.style.display = "block";
+        loadQuestion();
+      });
+
+    // Inicia quiz e configura botão de mudo
+    loadQuestion();
+    muteBtn.addEventListener("click", () => {
+      bgMusic.muted = !bgMusic.muted;
+      muteBtn.textContent = bgMusic.muted ? "🔇" : "🔊";
+    });
+  </script>
 </body>
 </html>
