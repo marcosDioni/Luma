@@ -12,7 +12,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       position: relative;
     }
     .container {
@@ -46,25 +46,22 @@
       display: block; margin: 15px auto;
       width: 120px; height: auto;
     }
-    #muteBtn {
+    #audioControl {
       position: absolute; top: 20px; right: 20px;
-      background: transparent; border: none;
-      color: #f5e8c7; font-size: 1.4rem;
-      cursor: pointer;
+      background: transparent; border: 2px solid #d4af37;
+      border-radius: 4px; color: #f5e8c7;
+      padding: 6px; cursor: pointer;
     }
-    /* iframe escondido para playback */
-    #audioFrame { display: none; }
+    audio { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- Embed YouTube para tocar Hedwig's Theme em loop -->
-  <iframe
-    id="audioFrame"
-    src="https://www.youtube.com/embed/wtHra9tFISY?autoplay=1&loop=1&playlist=wtHra9tFISY&controls=0"
-    allow="autoplay"
-  ></iframe>
-  <button id="muteBtn">🔊</button>
+  <!-- Música de fundo: tema de fantasia gratuito -->
+  <audio id="bgMusic"
+         src="https://assets.mixkit.co/music/download/mixkit-fantasy-theme-615.mp3"
+         loop autoplay></audio>
+  <button id="audioControl">🔊</button>
 
   <div class="container" id="quizContainer">
     <h1>Chapéu Seletor</h1>
@@ -119,8 +116,8 @@
     const houseRes     = document.getElementById("houseResult");
     const birthdayMsg  = document.getElementById("birthdayMsg");
     const houseImg     = document.getElementById("houseImg");
-    const audioFrame   = document.getElementById("audioFrame");
-    const muteBtn      = document.getElementById("muteBtn");
+    const bgMusic      = document.getElementById("bgMusic");
+    const audioControl = document.getElementById("audioControl");
 
     const birthdayByHouse = {
       "Grifinória": "Que a coragem de Grifinória te inspire em cada novo desafio!",
@@ -130,10 +127,14 @@
     };
 
     const imageByHouse = {
-      "Grifinória": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Gryffindor_House_Crest.png",
-      "Corvinal":   "https://upload.wikimedia.org/wikipedia/commons/e/ec/Ravenclaw_House_Crest.png",
-      "Sonserina":  "https://upload.wikimedia.org/wikipedia/commons/3/33/Slytherin_House_Crest.png",
-      "Lufa-Lufa":  "https://upload.wikimedia.org/wikipedia/commons/9/9f/Hufflepuff_House_Crest.png"
+      "Grifinória":
+        "https://upload.wikimedia.org/wikipedia/commons/5/5f/Gryffindor_House_Crest.png",
+      "Corvinal":
+        "https://upload.wikimedia.org/wikipedia/commons/e/ec/Ravenclaw_House_Crest.png",
+      "Sonserina":
+        "https://upload.wikimedia.org/wikipedia/commons/3/33/Slytherin_House_Crest.png",
+      "Lufa-Lufa":
+        "https://upload.wikimedia.org/wikipedia/commons/9/9f/Hufflepuff_House_Crest.png"
     };
 
     function loadQuestion() {
@@ -142,10 +143,10 @@
       questionEl.textContent = q;
       choicesEl.innerHTML = "";
       choices.forEach((txt, i) => {
+        const li = document.createElement("li");
         const btn = document.createElement("button");
         btn.textContent = txt;
         btn.onclick = () => selectAnswer(i);
-        const li = document.createElement("li");
         li.appendChild(btn);
         choicesEl.appendChild(li);
       });
@@ -170,7 +171,9 @@
       resultBlock.style.display = "block";
       const maxScore = Math.max(...Object.values(tally));
       const winners = Object.keys(tally).filter(h => tally[h] === maxScore);
-      const finalHouse = winners[Math.floor(Math.random() * winners.length)];
+      const finalHouse = winners[
+        Math.floor(Math.random() * winners.length)
+      ];
 
       houseRes.textContent    = `Parabéns! Seja bem-vinda à ${finalHouse}!`;
       birthdayMsg.textContent = birthdayByHouse[finalHouse];
@@ -186,17 +189,13 @@
       loadQuestion();
     };
 
-    // inicia quiz e configura controle de áudio
+    // Auto-inicia o quiz
     loadQuestion();
-    let muted = false;
-    muteBtn.onclick = () => {
-      muted = !muted;
-      // recarrega iframe com ou sem mute
-      audioFrame.src = 
-        `https://www.youtube.com/embed/wtHra9tFISY` +
-        `?autoplay=1&loop=1&playlist=wtHra9tFISY&controls=0` +
-        (muted ? `&mute=1` : ``);
-      muteBtn.textContent = muted ? "🔇" : "🔊";
+
+    // Toggle áudio
+    audioControl.onclick = () => {
+      bgMusic.muted = !bgMusic.muted;
+      audioControl.textContent = bgMusic.muted ? "🔇" : "🔊";
     };
   </script>
 </body>
