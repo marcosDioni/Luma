@@ -52,16 +52,18 @@
       color: #f5e8c7; font-size: 1.4rem;
       cursor: pointer;
     }
-    audio { display: none; }
+    /* iframe escondido para playback */
+    #audioFrame { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- Áudio de fundo: tema livre de fantasia -->
-  <audio id="bgMusic"
-         src="https://assets.mixkit.co/music/download/mixkit-fantasy-theme-615.mp3"
-         loop autoplay>
-  </audio>
+  <!-- Embed YouTube para tocar Hedwig's Theme em loop -->
+  <iframe
+    id="audioFrame"
+    src="https://www.youtube.com/embed/wtHra9tFISY?autoplay=1&loop=1&playlist=wtHra9tFISY&controls=0"
+    allow="autoplay"
+  ></iframe>
   <button id="muteBtn">🔊</button>
 
   <div class="container" id="quizContainer">
@@ -84,10 +86,10 @@
   <script>
     const questions = [
       { q: "Qual desses animais você mais gosta?",
-        choices: ["Coruja", "Rato", "Cavalo", "Leão"],
-        houses: ["Corvinal", "Sonserina", "Lufa-Lufa", "Grifinória"] },
+        choices: ["Coruja","Rato","Cavalo","Leão"],
+        houses: ["Corvinal","Sonserina","Lufa-Lufa","Grifinória"] },
       { q: "Qual qualidade você valoriza mais?",
-        choices: ["Coragem", "Lealdade", "Inteligência", "Ambição"],
+        choices: ["Coragem","Lealdade","Inteligência","Ambição"],
         houses: ["Grifinória","Lufa-Lufa","Corvinal","Sonserina"] },
       { q: "Onde você passaria mais tempo?",
         choices: ["Sala comum da Grifinória","Torre da Corvinal",
@@ -102,18 +104,23 @@
     ];
 
     let current = 0;
-    const tally = { "Grifinória":0,"Corvinal":0,"Sonserina":0,"Lufa-Lufa":0 };
+    const tally = {
+      "Grifinória": 0,
+      "Corvinal":   0,
+      "Sonserina":  0,
+      "Lufa-Lufa":  0
+    };
 
-    const questionEl  = document.getElementById("question");
-    const choicesEl   = document.getElementById("choices");
-    const nextBtn     = document.getElementById("nextBtn");
-    const resultBlock = document.getElementById("resultBlock");
-    const questionBlk = document.getElementById("questionBlock");
-    const houseRes    = document.getElementById("houseResult");
-    const birthdayMsg = document.getElementById("birthdayMsg");
-    const houseImg    = document.getElementById("houseImg");
-    const bgMusic     = document.getElementById("bgMusic");
-    const muteBtn     = document.getElementById("muteBtn");
+    const questionEl   = document.getElementById("question");
+    const choicesEl    = document.getElementById("choices");
+    const nextBtn      = document.getElementById("nextBtn");
+    const resultBlock  = document.getElementById("resultBlock");
+    const questionBlk  = document.getElementById("questionBlock");
+    const houseRes     = document.getElementById("houseResult");
+    const birthdayMsg  = document.getElementById("birthdayMsg");
+    const houseImg     = document.getElementById("houseImg");
+    const audioFrame   = document.getElementById("audioFrame");
+    const muteBtn      = document.getElementById("muteBtn");
 
     const birthdayByHouse = {
       "Grifinória": "Que a coragem de Grifinória te inspire em cada novo desafio!",
@@ -131,20 +138,22 @@
 
     function loadQuestion() {
       nextBtn.disabled = true;
-      const {q, choices} = questions[current];
+      const { q, choices } = questions[current];
       questionEl.textContent = q;
       choicesEl.innerHTML = "";
-      choices.forEach((txt,i) => {
+      choices.forEach((txt, i) => {
         const btn = document.createElement("button");
         btn.textContent = txt;
         btn.onclick = () => selectAnswer(i);
-        choicesEl.appendChild(document.createElement("li")).appendChild(btn);
+        const li = document.createElement("li");
+        li.appendChild(btn);
+        choicesEl.appendChild(li);
       });
     }
 
     function selectAnswer(idx) {
       const btns = choicesEl.querySelectorAll("button");
-      btns.forEach(b=>b.disabled=true);
+      btns.forEach(b => b.disabled = true);
       const house = questions[current].houses[idx];
       tally[house]++;
       btns[idx].style.borderColor = "#d4af37";
@@ -153,16 +162,16 @@
 
     nextBtn.onclick = () => {
       current++;
-      if (current < questions.length) loadQuestion();
-      else showResult();
+      current < questions.length ? loadQuestion() : showResult();
     };
 
     function showResult() {
       questionBlk.style.display = "none";
       resultBlock.style.display = "block";
-      const maxP = Math.max(...Object.values(tally));
-      const tops = Object.keys(tally).filter(h=>tally[h]===maxP);
-      const finalHouse = tops[Math.floor(Math.random()*tops.length)];
+      const maxScore = Math.max(...Object.values(tally));
+      const winners = Object.keys(tally).filter(h => tally[h] === maxScore);
+      const finalHouse = winners[Math.floor(Math.random() * winners.length)];
+
       houseRes.textContent    = `Parabéns! Seja bem-vinda à ${finalHouse}!`;
       birthdayMsg.textContent = birthdayByHouse[finalHouse];
       houseImg.src            = imageByHouse[finalHouse];
@@ -170,17 +179,24 @@
     }
 
     document.getElementById("restartBtn").onclick = () => {
-      current=0; for(let h in tally) tally[h]=0;
-      resultBlock.style.display="none";
-      questionBlk.style.display="block";
+      current = 0;
+      Object.keys(tally).forEach(h => tally[h] = 0);
+      resultBlock.style.display = "none";
+      questionBlk.style.display = "block";
       loadQuestion();
     };
 
-    // inicia quiz e configura áudio
+    // inicia quiz e configura controle de áudio
     loadQuestion();
+    let muted = false;
     muteBtn.onclick = () => {
-      bgMusic.muted = !bgMusic.muted;
-      muteBtn.textContent = bgMusic.muted ? "🔇" : "🔊";
+      muted = !muted;
+      // recarrega iframe com ou sem mute
+      audioFrame.src = 
+        `https://www.youtube.com/embed/wtHra9tFISY` +
+        `?autoplay=1&loop=1&playlist=wtHra9tFISY&controls=0` +
+        (muted ? `&mute=1` : ``);
+      muteBtn.textContent = muted ? "🔇" : "🔊";
     };
   </script>
 </body>
