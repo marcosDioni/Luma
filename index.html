@@ -52,16 +52,11 @@
       border-radius: 4px; color: #f5e8c7;
       padding: 6px; cursor: pointer;
     }
-    audio { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- Música de fundo: tema de fantasia gratuito -->
-  <audio id="bgMusic"
-         src="https://assets.mixkit.co/music/download/mixkit-fantasy-theme-615.mp3"
-         loop autoplay></audio>
-  <button id="audioControl">🔊</button>
+  <button id="audioControl">▶️ Música</button>
 
   <div class="container" id="quizContainer">
     <h1>Chapéu Seletor</h1>
@@ -74,13 +69,14 @@
 
     <div id="resultBlock" style="display:none">
       <h2 id="houseResult"></h2>
-      <img id="houseImg" src="" alt="Escudo da Casa" />
+      <img id="houseImg" src="" alt="Escudo da Casa"/>
       <p id="birthdayMsg"></p>
       <button id="restartBtn">Refazer Seleção</button>
     </div>
   </div>
 
   <script>
+    // 1) Configura quiz
     const questions = [
       { q: "Qual desses animais você mais gosta?",
         choices: ["Coruja","Rato","Cavalo","Leão"],
@@ -99,7 +95,6 @@
         choices: ["Vermelho","Azul","Verde","Amarelo"],
         houses: ["Grifinória","Corvinal","Sonserina","Lufa-Lufa"] }
     ];
-
     let current = 0;
     const tally = {
       "Grifinória": 0,
@@ -107,25 +102,12 @@
       "Sonserina":  0,
       "Lufa-Lufa":  0
     };
-
-    const questionEl   = document.getElementById("question");
-    const choicesEl    = document.getElementById("choices");
-    const nextBtn      = document.getElementById("nextBtn");
-    const resultBlock  = document.getElementById("resultBlock");
-    const questionBlk  = document.getElementById("questionBlock");
-    const houseRes     = document.getElementById("houseResult");
-    const birthdayMsg  = document.getElementById("birthdayMsg");
-    const houseImg     = document.getElementById("houseImg");
-    const bgMusic      = document.getElementById("bgMusic");
-    const audioControl = document.getElementById("audioControl");
-
     const birthdayByHouse = {
       "Grifinória": "Que a coragem de Grifinória te inspire em cada novo desafio!",
       "Corvinal":   "Que a sabedoria de Corvinal ilumine seus melhores dias!",
       "Sonserina":  "Que a ambição de Sonserina te leve mais longe!",
       "Lufa-Lufa":  "Que a lealdade de Lufa-Lufa fortaleça todos os seus laços!"
     };
-
     const imageByHouse = {
       "Grifinória":
         "https://upload.wikimedia.org/wikipedia/commons/5/5f/Gryffindor_House_Crest.png",
@@ -137,13 +119,41 @@
         "https://upload.wikimedia.org/wikipedia/commons/9/9f/Hufflepuff_House_Crest.png"
     };
 
+    // 2) Elementos da página
+    const questionEl   = document.getElementById("question");
+    const choicesEl    = document.getElementById("choices");
+    const nextBtn      = document.getElementById("nextBtn");
+    const resultBlock  = document.getElementById("resultBlock");
+    const questionBlk  = document.getElementById("questionBlock");
+    const houseRes     = document.getElementById("houseResult");
+    const birthdayMsg  = document.getElementById("birthdayMsg");
+    const houseImg     = document.getElementById("houseImg");
+    const audioControl = document.getElementById("audioControl");
+
+    // 3) Áudio em JS (só toca após clique)
+    const bgMusic = new Audio("https://assets.mixkit.co/music/download/mixkit-fantasy-theme-615.mp3");
+    bgMusic.loop = true;
+    let audioPlaying = false;
+
+    audioControl.onclick = () => {
+      if (!audioPlaying) {
+        bgMusic.play();
+        audioControl.textContent = "🔇 Mudo";
+      } else {
+        bgMusic.pause();
+        audioControl.textContent = "▶️ Música";
+      }
+      audioPlaying = !audioPlaying;
+    };
+
+    // 4) Funções do quiz
     function loadQuestion() {
       nextBtn.disabled = true;
       const { q, choices } = questions[current];
       questionEl.textContent = q;
       choicesEl.innerHTML = "";
       choices.forEach((txt, i) => {
-        const li = document.createElement("li");
+        const li  = document.createElement("li");
         const btn = document.createElement("button");
         btn.textContent = txt;
         btn.onclick = () => selectAnswer(i);
@@ -155,8 +165,8 @@
     function selectAnswer(idx) {
       const btns = choicesEl.querySelectorAll("button");
       btns.forEach(b => b.disabled = true);
-      const house = questions[current].houses[idx];
-      tally[house]++;
+      const chosenHouse = questions[current].houses[idx];
+      tally[chosenHouse]++;
       btns[idx].style.borderColor = "#d4af37";
       nextBtn.disabled = false;
     }
@@ -171,10 +181,7 @@
       resultBlock.style.display = "block";
       const maxScore = Math.max(...Object.values(tally));
       const winners = Object.keys(tally).filter(h => tally[h] === maxScore);
-      const finalHouse = winners[
-        Math.floor(Math.random() * winners.length)
-      ];
-
+      const finalHouse = winners[Math.floor(Math.random() * winners.length)];
       houseRes.textContent    = `Parabéns! Seja bem-vinda à ${finalHouse}!`;
       birthdayMsg.textContent = birthdayByHouse[finalHouse];
       houseImg.src            = imageByHouse[finalHouse];
@@ -189,14 +196,8 @@
       loadQuestion();
     };
 
-    // Auto-inicia o quiz
+    // 5) Inicia
     loadQuestion();
-
-    // Toggle áudio
-    audioControl.onclick = () => {
-      bgMusic.muted = !bgMusic.muted;
-      audioControl.textContent = bgMusic.muted ? "🔇" : "🔊";
-    };
   </script>
 </body>
 </html>
