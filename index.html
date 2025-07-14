@@ -57,12 +57,11 @@
 </head>
 <body>
 
-  <!-- Áudio de fundo: Harry Potter Main Theme -->
+  <!-- Áudio de fundo: tema livre de fantasia -->
   <audio id="bgMusic"
-         src="https://www.televisiontunes.com/uploads/audio/Harry%20Potter%20-%20Main%20Theme.mp3"
+         src="https://assets.mixkit.co/music/download/mixkit-fantasy-theme-615.mp3"
          loop autoplay>
   </audio>
-
   <button id="muteBtn">🔊</button>
 
   <div class="container" id="quizContainer">
@@ -84,56 +83,37 @@
 
   <script>
     const questions = [
-      {
-        q: "Qual desses animais você mais gosta?",
+      { q: "Qual desses animais você mais gosta?",
         choices: ["Coruja", "Rato", "Cavalo", "Leão"],
-        houses: ["Corvinal", "Sonserina", "Lufa-Lufa", "Grifinória"]
-      },
-      {
-        q: "Qual qualidade você valoriza mais?",
+        houses: ["Corvinal", "Sonserina", "Lufa-Lufa", "Grifinória"] },
+      { q: "Qual qualidade você valoriza mais?",
         choices: ["Coragem", "Lealdade", "Inteligência", "Ambição"],
-        houses: ["Grifinória", "Lufa-Lufa", "Corvinal", "Sonserina"]
-      },
-      {
-        q: "Onde você passaria mais tempo?",
-        choices: [
-          "Sala comum da Grifinória",
-          "Torre da Corvinal",
-          "Porão da Sonserina",
-          "Cozinhas da Lufa-Lufa"
-        ],
-        houses: ["Grifinória", "Corvinal", "Sonserina", "Lufa-Lufa"]
-      },
-      {
-        q: "Qual feitiço é seu favorito?",
-        choices: ["Expelliarmus", "Wingardium Leviosa", "Protego", "Reparo"],
-        houses: ["Grifinória", "Corvinal", "Sonserina", "Lufa-Lufa"]
-      },
-      {
-        q: "Qual cor combina mais com você?",
-        choices: ["Vermelho", "Azul", "Verde", "Amarelo"],
-        houses: ["Grifinória", "Corvinal", "Sonserina", "Lufa-Lufa"]
-      }
+        houses: ["Grifinória","Lufa-Lufa","Corvinal","Sonserina"] },
+      { q: "Onde você passaria mais tempo?",
+        choices: ["Sala comum da Grifinória","Torre da Corvinal",
+                  "Porão da Sonserina","Cozinhas da Lufa-Lufa"],
+        houses: ["Grifinória","Corvinal","Sonserina","Lufa-Lufa"] },
+      { q: "Qual feitiço é seu favorito?",
+        choices: ["Expelliarmus","Wingardium Leviosa","Protego","Reparo"],
+        houses: ["Grifinória","Corvinal","Sonserina","Lufa-Lufa"] },
+      { q: "Qual cor combina mais com você?",
+        choices: ["Vermelho","Azul","Verde","Amarelo"],
+        houses: ["Grifinória","Corvinal","Sonserina","Lufa-Lufa"] }
     ];
 
     let current = 0;
-    const tally = {
-      "Grifinória": 0,
-      "Corvinal":   0,
-      "Sonserina":  0,
-      "Lufa-Lufa":  0
-    };
+    const tally = { "Grifinória":0,"Corvinal":0,"Sonserina":0,"Lufa-Lufa":0 };
 
-    const questionEl    = document.getElementById("question");
-    const choicesEl     = document.getElementById("choices");
-    const nextBtn       = document.getElementById("nextBtn");
-    const resultBlock   = document.getElementById("resultBlock");
-    const questionBlock = document.getElementById("questionBlock");
-    const houseResult   = document.getElementById("houseResult");
-    const birthdayMsg   = document.getElementById("birthdayMsg");
-    const houseImg      = document.getElementById("houseImg");
-    const bgMusic       = document.getElementById("bgMusic");
-    const muteBtn       = document.getElementById("muteBtn");
+    const questionEl  = document.getElementById("question");
+    const choicesEl   = document.getElementById("choices");
+    const nextBtn     = document.getElementById("nextBtn");
+    const resultBlock = document.getElementById("resultBlock");
+    const questionBlk = document.getElementById("questionBlock");
+    const houseRes    = document.getElementById("houseResult");
+    const birthdayMsg = document.getElementById("birthdayMsg");
+    const houseImg    = document.getElementById("houseImg");
+    const bgMusic     = document.getElementById("bgMusic");
+    const muteBtn     = document.getElementById("muteBtn");
 
     const birthdayByHouse = {
       "Grifinória": "Que a coragem de Grifinória te inspire em cada novo desafio!",
@@ -143,70 +123,65 @@
     };
 
     const imageByHouse = {
-      "Grifinória": "https://commons.wikimedia.org/wiki/Special:FilePath/Gryffindor_House_Crest.png",
-      "Corvinal":   "https://commons.wikimedia.org/wiki/Special:FilePath/Ravenclaw_House_Crest.png",
-      "Sonserina":  "https://commons.wikimedia.org/wiki/Special:FilePath/Slytherin_House_Crest.png",
-      "Lufa-Lufa":  "https://commons.wikimedia.org/wiki/Special:FilePath/Hufflepuff_House_Crest.png"
+      "Grifinória": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Gryffindor_House_Crest.png",
+      "Corvinal":   "https://upload.wikimedia.org/wikipedia/commons/e/ec/Ravenclaw_House_Crest.png",
+      "Sonserina":  "https://upload.wikimedia.org/wikipedia/commons/3/33/Slytherin_House_Crest.png",
+      "Lufa-Lufa":  "https://upload.wikimedia.org/wikipedia/commons/9/9f/Hufflepuff_House_Crest.png"
     };
 
     function loadQuestion() {
       nextBtn.disabled = true;
-      const item = questions[current];
-      questionEl.textContent = item.q;
+      const {q, choices} = questions[current];
+      questionEl.textContent = q;
       choicesEl.innerHTML = "";
-      item.choices.forEach((text, i) => {
-        const li  = document.createElement("li");
+      choices.forEach((txt,i) => {
         const btn = document.createElement("button");
-        btn.textContent = text;
-        btn.addEventListener("click", () => selectAnswer(i));
-        li.appendChild(btn);
-        choicesEl.appendChild(li);
+        btn.textContent = txt;
+        btn.onclick = () => selectAnswer(i);
+        choicesEl.appendChild(document.createElement("li")).appendChild(btn);
       });
     }
 
-    function selectAnswer(index) {
+    function selectAnswer(idx) {
       const btns = choicesEl.querySelectorAll("button");
-      btns.forEach(b => b.disabled = true);
-      const chosenHouse = questions[current].houses[index];
-      tally[chosenHouse]++;
-      btns[index].style.borderColor = "#d4af37";
+      btns.forEach(b=>b.disabled=true);
+      const house = questions[current].houses[idx];
+      tally[house]++;
+      btns[idx].style.borderColor = "#d4af37";
       nextBtn.disabled = false;
     }
 
-    nextBtn.addEventListener("click", () => {
+    nextBtn.onclick = () => {
       current++;
       if (current < questions.length) loadQuestion();
       else showResult();
-    });
+    };
 
     function showResult() {
-      questionBlock.style.display = "none";
-      resultBlock.style.display   = "block";
-      const maxScore = Math.max(...Object.values(tally));
-      const tops     = Object.keys(tally).filter(h => tally[h] === maxScore);
-      const finalHouse = tops[Math.floor(Math.random() * tops.length)];
-      houseResult.textContent = `Parabéns! Seja bem-vinda à ${finalHouse}!`;
+      questionBlk.style.display = "none";
+      resultBlock.style.display = "block";
+      const maxP = Math.max(...Object.values(tally));
+      const tops = Object.keys(tally).filter(h=>tally[h]===maxP);
+      const finalHouse = tops[Math.floor(Math.random()*tops.length)];
+      houseRes.textContent    = `Parabéns! Seja bem-vinda à ${finalHouse}!`;
       birthdayMsg.textContent = birthdayByHouse[finalHouse];
       houseImg.src            = imageByHouse[finalHouse];
       houseImg.alt            = `Escudo de ${finalHouse}`;
     }
 
-    document
-      .getElementById("restartBtn")
-      .addEventListener("click", () => {
-        current = 0;
-        Object.keys(tally).forEach(h => tally[h] = 0);
-        resultBlock.style.display   = "none";
-        questionBlock.style.display = "block";
-        loadQuestion();
-      });
+    document.getElementById("restartBtn").onclick = () => {
+      current=0; for(let h in tally) tally[h]=0;
+      resultBlock.style.display="none";
+      questionBlk.style.display="block";
+      loadQuestion();
+    };
 
-    // Inicia quiz e configura botão de mudo
+    // inicia quiz e configura áudio
     loadQuestion();
-    muteBtn.addEventListener("click", () => {
+    muteBtn.onclick = () => {
       bgMusic.muted = !bgMusic.muted;
       muteBtn.textContent = bgMusic.muted ? "🔇" : "🔊";
-    });
+    };
   </script>
 </body>
 </html>
